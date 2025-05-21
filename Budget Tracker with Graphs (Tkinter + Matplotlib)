@@ -1,0 +1,61 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+transactions = []
+
+def add_transaction():
+    t_type = type_var.get()
+    category = cat_var.get()
+    amount = entry_amount.get()
+
+    if not amount.isdigit():
+        messagebox.showerror("Error", "Enter a valid amount")
+        return
+
+    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    transactions.append((t_type, category, int(amount), date))
+    tree.insert('', tk.END, values=(t_type, category, amount, date))
+    entry_amount.delete(0, tk.END)
+
+def show_graph():
+    summary = {}
+    for t in transactions:
+        if t[0] == "Expense":
+            summary[t[1]] = summary.get(t[1], 0) + t[2]
+
+    categories = list(summary.keys())
+    amounts = list(summary.values())
+
+    plt.figure(figsize=(5, 4))
+    plt.pie(amounts, labels=categories, autopct='%1.1f%%')
+    plt.title("Expense Breakdown")
+    plt.show()
+
+root = tk.Tk()
+root.title("Budget Tracker")
+
+type_var = tk.StringVar(value="Expense")
+cat_var = tk.StringVar(value="Food")
+
+tk.Label(root, text="Type:").pack()
+ttk.Combobox(root, textvariable=type_var, values=["Income", "Expense"]).pack()
+
+tk.Label(root, text="Category:").pack()
+ttk.Combobox(root, textvariable=cat_var, values=["Food", "Rent", "Travel", "Others"]).pack()
+
+tk.Label(root, text="Amount:").pack()
+entry_amount = tk.Entry(root)
+entry_amount.pack()
+
+tk.Button(root, text="Add Transaction", command=add_transaction).pack(pady=10)
+tk.Button(root, text="Show Graph", command=show_graph).pack()
+
+cols = ("Type", "Category", "Amount", "Date")
+tree = ttk.Treeview(root, columns=cols, show='headings')
+for col in cols:
+    tree.heading(col, text=col)
+tree.pack()
+
+root.mainloop()
