@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 transactions = []
-
 def add_transaction():
     t_type = type_var.get()
     category = cat_var.get()
