@@ -1,0 +1,39 @@
+import tkinter as tk
+from tkinter import messagebox
+import speech_recognition as sr
+
+tasks = []
+
+def add_task():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        lbl_status.config(text="Listening...")
+        try:
+            audio = recognizer.listen(source, timeout=5)
+            task = recognizer.recognize_google(audio)
+            tasks.append(task)
+            listbox.insert(tk.END, task)
+            lbl_status.config(text="Task added: " + task)
+        except Exception as e:
+            lbl_status.config(text="Error: " + str(e))
+
+def delete_task():
+    try:
+        index = listbox.curselection()[0]
+        listbox.delete(index)
+        del tasks[index]
+    except:
+        messagebox.showwarning("Warning", "No task selected")
+
+root = tk.Tk()
+root.title("Voice To-Do List")
+
+tk.Button(root, text="🎤 Speak Task", command=add_task).pack(pady=10)
+listbox = tk.Listbox(root, width=50)
+listbox.pack()
+tk.Button(root, text="🗑 Delete Task", command=delete_task).pack(pady=10)
+
+lbl_status = tk.Label(root, text="Speak a task to add", fg="blue")
+lbl_status.pack()
+
+root.mainloop()
