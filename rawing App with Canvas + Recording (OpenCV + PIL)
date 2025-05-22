@@ -1,0 +1,47 @@
+import tkinter as tk
+from PIL import Image, ImageDraw
+import numpy as np
+import cv2
+import os
+
+frames = []
+
+def start_draw(event):
+    canvas.old_coords = event.x, event.y
+
+def draw(event):
+    x, y = event.x, event.y
+    x1, y1 = canvas.old_coords
+    canvas.create_line(x1, y1, x, y, fill='black', width=3)
+    draw_img.line((x1, y1, x, y), fill='black', width=3)
+    canvas.old_coords = x, y
+    frame = np.array(image)
+    frames.append(frame)
+
+def reset(event):
+    canvas.old_coords = None
+
+def save_video():
+    h, w = frames[0].shape[:2]
+    out = cv2.VideoWriter("drawing.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 10, (w, h))
+    for f in frames:
+        out.write(cv2.cvtColor(f, cv2.COLOR_RGB2BGR))
+    out.release()
+    tk.messagebox.showinfo("Saved", "Video saved as drawing.mp4")
+
+root = tk.Tk()
+root.title("Drawing App with Recording")
+
+canvas = tk.Canvas(root, width=400, height=400, bg="white")
+canvas.pack()
+
+image = Image.new("RGB", (400, 400), "white")
+draw_img = ImageDraw.Draw(image)
+
+canvas.bind("<Button-1>", start_draw)
+canvas.bind("<B1-Motion>", draw)
+canvas.bind("<ButtonRelease-1>", reset)
+
+tk.Button(root, text="Save Drawing Video", command=save_video).pack(pady=10)
+
+root.mainloop()
