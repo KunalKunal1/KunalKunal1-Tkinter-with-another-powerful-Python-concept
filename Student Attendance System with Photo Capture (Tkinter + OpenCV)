@@ -1,0 +1,40 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import cv2
+import os
+from datetime import datetime
+
+students = ["Alice", "Bob", "Charlie", "David"]
+
+def mark_attendance():
+    name = selected_student.get()
+    if not name:
+        messagebox.showerror("Error", "Select a student!")
+        return
+
+    cap = cv2.VideoCapture(0)
+    ret, frame = cap.read()
+    if ret:
+        now = datetime.now()
+        timestamp = now.strftime("%Y%m%d_%H%M%S")
+        folder = "attendance_photos"
+        os.makedirs(folder, exist_ok=True)
+        filename = f"{folder}/{name}_{timestamp}.jpg"
+        cv2.imwrite(filename, frame)
+        messagebox.showinfo("Success", f"Attendance marked for {name}.\nPhoto saved.")
+    else:
+        messagebox.showerror("Camera Error", "Could not access camera.")
+    cap.release()
+    cv2.destroyAllWindows()
+
+root = tk.Tk()
+root.title("Attendance System with Photo")
+root.geometry("300x200")
+
+tk.Label(root, text="Select Student").pack(pady=10)
+selected_student = ttk.Combobox(root, values=students)
+selected_student.pack(pady=5)
+
+tk.Button(root, text="Mark Present", command=mark_attendance).pack(pady=20)
+
+root.mainloop()
