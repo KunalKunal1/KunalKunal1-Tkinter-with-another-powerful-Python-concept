@@ -1,0 +1,47 @@
+import tkinter as tk
+import time
+import threading
+import webbrowser
+import pygame
+
+pygame.init()
+
+def play_alarm(sound_type):
+    if sound_type == "file":
+        pygame.mixer.music.load("alarm.mp3")  # Add your .mp3 file
+        pygame.mixer.music.play()
+    elif sound_type == "youtube":
+        webbrowser.open("https://www.youtube.com/watch?v=RfE6J-uC_2g")
+
+def set_alarm():
+    alarm_time = entry_time.get()
+    method = var.get()
+
+    def check():
+        while True:
+            current_time = time.strftime("%H:%M")
+            if current_time == alarm_time:
+                play_alarm(method)
+                break
+            time.sleep(1)
+
+    threading.Thread(target=check).start()
+    lbl_status.config(text=f"Alarm set for {alarm_time}")
+
+root = tk.Tk()
+root.title("Custom Alarm Clock")
+root.geometry("300x200")
+
+tk.Label(root, text="Set Alarm (HH:MM)").pack(pady=5)
+entry_time = tk.Entry(root)
+entry_time.pack()
+
+var = tk.StringVar(value="file")
+tk.Radiobutton(root, text="Play Sound File", variable=var, value="file").pack()
+tk.Radiobutton(root, text="Open YouTube", variable=var, value="youtube").pack()
+
+tk.Button(root, text="Set Alarm", command=set_alarm).pack(pady=10)
+lbl_status = tk.Label(root, text="")
+lbl_status.pack()
+
+root.mainloop()
