@@ -1,0 +1,44 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import qrcode
+import os
+
+books = []
+
+def generate_qr():
+    title = entry_title.get()
+    author = entry_author.get()
+    if not title or not author:
+        messagebox.showerror("Error", "Enter all fields")
+        return
+
+    book_id = len(books) + 1
+    data = f"ID: {book_id}\nTitle: {title}\nAuthor: {author}"
+    qr = qrcode.make(data)
+
+    folder = "book_qr_codes"
+    os.makedirs(folder, exist_ok=True)
+    filename = f"{folder}/{title.replace(' ', '_')}.png"
+    qr.save(filename)
+
+    books.append((book_id, title, author))
+    messagebox.showinfo("QR Created", f"QR saved as {filename}")
+
+    entry_title.delete(0, tk.END)
+    entry_author.delete(0, tk.END)
+
+root = tk.Tk()
+root.title("Book QR Library")
+root.geometry("300x200")
+
+tk.Label(root, text="Book Title").pack()
+entry_title = tk.Entry(root)
+entry_title.pack()
+
+tk.Label(root, text="Author").pack()
+entry_author = tk.Entry(root)
+entry_author.pack()
+
+tk.Button(root, text="Generate QR", command=generate_qr).pack(pady=10)
+
+root.mainloop()
